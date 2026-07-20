@@ -5,8 +5,8 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
-OUTPUT_PATH = "/workspace/Section 6 Future Tracking Parameters.xlsx"
-SOURCE_PATH = "/workspace/Baseline Data Use Case Alignment - All Use Cases V2.xlsx"
+OUTPUT_PATH = "/workspace/archive/baseline-workbooks/Section 6 Future Tracking Parameters.xlsx"
+SOURCE_PATH = "/workspace/archive/baseline-workbooks/Baseline Data Use Case Alignment - All Use Cases V2.xlsx"
 SECTION = "6 - Future Tracking Parameters"
 NEW_FIELDS = [
     "Content Type",

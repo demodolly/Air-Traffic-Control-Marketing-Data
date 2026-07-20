@@ -4,7 +4,7 @@
 import openpyxl
 from copy import copy
 
-FILE_PATH = "/workspace/Baseline Data Use Case Alignment - All Use Cases V2.xlsx"
+FILE_PATH = "/workspace/archive/baseline-workbooks/Baseline Data Use Case Alignment - All Use Cases V2.xlsx"
 SECTION = "6 - Future Tracking Parameters"
 
 # Field definitions: (name, content_id_only, business_confirmation, attr, op, se)

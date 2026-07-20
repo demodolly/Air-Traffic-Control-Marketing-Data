@@ -8,26 +8,23 @@ Supporting reference (field order within sections 2–6):
 
 - **`Data Element Order.xlsx`**
 
-## Superseded (removed from the repo root)
+## Source extracts (active)
 
-These older Day 20 files were deleted to avoid version confusion. They remain in **git history** if you need to recover them.
+| File | Purpose |
+|------|---------|
+| `Contact Us Forms.xlsx` | Contact Us form source data |
+| `Offer Form Submissions.xlsx` | Offer form source data |
 
-| Removed file | Replaced by |
-|--------------|-------------|
-| `Baseline Data Use Case Alignment - Day 20.xlsx` | Day 20 **V2** |
-| `Baseline Data Use Case Alignment - Day 20 - Reformatted.xlsx` | Day 20 **V2** (same use-case layout, plus your formulas and matrix sheets) |
+## Archived older versions
 
-## Other workbooks in this repo
+Superseded baselines live under **`archive/baseline-workbooks/`** (see `archive/README.md`). They are not maintained for day-to-day work.
 
-| File | Notes |
-|------|--------|
-| `Baseline Data Use Case Alignment - All Use Cases V1.xlsx` / `V2.xlsx` | Earlier baseline snapshots; not the active Day 20 workbook |
-| `Baseline Data Use Case Alignment - Offers V1.xlsx` / `V2.xlsx` | Offers-specific alignment |
-| `Contact Us Forms.xlsx` / `Offer Form Submissions.xlsx` | Source extracts for form parameters |
-| `Section 6 Future Tracking Parameters.xlsx` | Section 6 field reference (optional) |
+Includes: Day 20 (original), Day 20 Reformatted, All Use Cases V1/V2, Offers V1/V2, and Section 6 reference workbook.
 
 ## Scripts
 
 | Script | Status |
 |--------|--------|
-| `scripts/reformat_day20_workbook.py` | **Deprecated** — was used to build the old “Reformatted” file from the long-form Day 20 export. Edit **Day 20 V2** directly instead. |
+| `scripts/reformat_day20_workbook.py` | **Deprecated** — edit **Day 20 V2** directly |
+| `scripts/add_section6_fields.py` | Legacy — reads archived All Use Cases V2 |
+| `scripts/create_section6_reference.py` | Legacy — reads archived All Use Cases V2 |
