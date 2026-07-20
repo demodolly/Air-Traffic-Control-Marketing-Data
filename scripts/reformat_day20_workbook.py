@@ -55,6 +55,185 @@ USE_CASE_HEADERS = [
 
 REVIEW_STATUS_COL = len(USE_CASE_HEADERS)
 
+# Logical field order within each section (related elements grouped together).
+SECTION_FIELD_ORDER: dict[str, list[str]] = {
+    "1 - System Classification": [
+        "Activity Type",
+        "Use Case",
+        "Lead Category",
+        "Sales Routing Trigger",
+    ],
+    "2 - Contact Identity": [
+        "Email",
+        "Email Status",
+        "First Name",
+        "Last Name",
+        "Company Name",
+        "Job Title",
+        "Job Level",
+        "Job Department",
+        "Decision Maker Type",
+        "Phone Status",
+        "OK to Call",
+        "OK to Email",
+        "Region ",
+        "Partner Flag",
+        "Student Flag",
+        "Person Party ID",
+        "UUID",
+        "Marketing Automation Tool Contact ID",
+    ],
+    "3 - Account Identity": [
+        "Website URL",
+        "SFDC Account ID",
+        "CR Party ID",
+        "ORG Party ID",
+        "Address Line 1",
+        "City",
+        "State/County",
+        "Postal/Zip Code",
+        "Country",
+        "Primary Phone Number",
+        "Phone Extension",
+        "Number of Employees",
+        "Vertical Market",
+        "Named Account Flag",
+        "SAVM Account Manager Email",
+        "SAVM Sales Coverage Code",
+        "SAVM Sales Level 1",
+        "SAVM Sales Level 2",
+    ],
+    "4 - Compliance / Permissions": [
+        "Email Opt-In Permission",
+        "Primary Phone Opt-In Permission",
+        "Consent / Permission Status",
+        "Contact Provided Permission",
+        "Cross Border Storage (China Hand Raisers and Responses Only)",
+        "Share Data with Cisco Affiliates and Suppliers (China Hand Raisers and Responses Only)",
+        "Korea and Vietnam Combined Consent",
+    ],
+    "5 - Legacy Tracking Parameters": [
+        "Vehicle",
+        "Campaign Name",
+        "Program Name",
+        "Activity Name",
+        "Activity Description",
+        "Activity ID",
+        "Offer Type",
+        "Offer Name",
+        "Offer Description",
+        "Offer ID",
+        "Drive To ID",
+        "DTID Reporting Channel",
+    ],
+    "6 - Future Tracking Parameters": [
+        "Workfront Channel ID",
+        "Workfront Content ID",
+        "Content Type",
+        "Primary Technology",
+        "Campaign",
+        "Program",
+        "Funnel Stage",
+        "Channel Type",
+        "Channel Source",
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_term",
+        "utm_content",
+        "utm_creative",
+        "Vendor",
+        "Source Domain",
+        "Entry URL",
+        "Gated Page URL",
+        "Call to Action URL",
+        "Google Click ID",
+        "Link Click ID",
+        "C_ECID",
+        "C_FPID",
+        "CP_GUTC",
+    ],
+    "7 - Event Tracking Parameters": [
+        "Event ID / EID",
+        "Event Name",
+        "Event Start Date",
+        "Event End Date",
+        "Registration Date",
+        "Event Attended",
+        "Attendance Date",
+        "Live Attendance Date",
+        "Session Name",
+        "Session Topic / Track",
+        "Session Attendance Date",
+        "Sponsored Session Name",
+        "Booth Name / Location",
+        "Booth Scan Date",
+        "Meeting Type",
+        "Meeting Owner",
+        "Meeting Date",
+        "CXO / Executive Indicator",
+        "CXO Event Attendance Date",
+        "Customer Comments",
+        "Transaction Date",
+    ],
+    "8 - Activity Detail": [
+        "Form Submit Date",
+        "Registration Date",
+        "Webinar Date",
+        "On-Demand View Date",
+        "Transaction Date",
+        "Integrate Source ID",
+        "Contact Source Original",
+        "Sales Conversation Interest",
+        "Enquiry Type",
+        "Additional Enquiry Details",
+        "Customer Comments",
+        "Language",
+        "Privacy ID",
+        "Funnel Stage",
+        "Marketing Automation Tool Form ID",
+        "Marketing Automation Tool Email ID",
+        "Marketing Automation Tool Landing Page ID",
+    ],
+}
+
+
+def section_sort_key(section_name: str) -> int:
+    match = re.match(r"(\d+)", str(section_name) or "")
+    return int(match.group(1)) if match else 999
+
+
+def field_sort_key(section_name: str, field_name: str) -> tuple[int, int, str]:
+    order = SECTION_FIELD_ORDER.get(section_name, [])
+    normalized = {name: idx for idx, name in enumerate(order)}
+    if field_name in normalized:
+        return (0, normalized[field_name], field_name)
+    return (1, 999, (field_name or "").lower().strip())
+
+
+def sort_rows_by_section_and_field(rows: list[tuple]) -> list[tuple]:
+    return sorted(
+        rows,
+        key=lambda r: (
+            section_sort_key(r[5]),
+            field_sort_key(r[5], r[6]),
+        ),
+    )
+
+
+def ordered_sections(rows: list[tuple]) -> list[str]:
+    seen: list[str] = []
+    for row in sort_rows_by_section_and_field(rows):
+        section = row[5]
+        if section not in seen:
+            seen.append(section)
+    return seen
+
+
+def rows_for_section(rows: list[tuple], section: str) -> list[tuple]:
+    section_rows = [r for r in rows if r[5] == section]
+    return sorted(section_rows, key=lambda r: field_sort_key(section, r[6]))
+
 
 def style_header_row(ws, row_num: int = 1, num_cols: int | None = None) -> None:
     cols = num_cols or ws.max_column
@@ -259,13 +438,9 @@ def write_use_case_sheet(wb, entry, rows):
     style_header_row(ws, header_row, ncols)
 
     combo_rows = [r for r in rows if (r[1], r[2], r[3], r[4]) == combo]
-    section_order = []
-    for r in combo_rows:
-        if r[5] not in section_order:
-            section_order.append(r[5])
+    section_order = ordered_sections(combo_rows)
 
     current_row = header_row + 1
-    data_row_start = current_row
     stripe = False
     for section in section_order:
         ws.merge_cells(
@@ -279,7 +454,7 @@ def write_use_case_sheet(wb, entry, rows):
         sec.font = SECTION_FONT
         current_row += 1
 
-        for r in [x for x in combo_rows if x[5] == section]:
+        for r in rows_for_section(combo_rows, section):
             values = [
                 r[6],
                 r[7],
@@ -327,12 +502,18 @@ def write_open_questions_sheet(wb, index, rows):
     style_header_row(ws)
 
     id_map = {entry["combo"]: entry for entry in index}
-    for row in rows:
-        question = merge_outstanding_questions(row)
-        if not question:
-            continue
+    question_rows = [row for row in rows if merge_outstanding_questions(row)]
+    question_rows.sort(
+        key=lambda r: (
+            id_map[(r[1], r[2], r[3], r[4])]["id"],
+            section_sort_key(r[5]),
+            field_sort_key(r[5], r[6]),
+        )
+    )
+    for row in question_rows:
         combo = (row[1], row[2], row[3], row[4])
         entry = id_map[combo]
+        question = merge_outstanding_questions(row)
         ws.append(
             [
                 entry["id"],
