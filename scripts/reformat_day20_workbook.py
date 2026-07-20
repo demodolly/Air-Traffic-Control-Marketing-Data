@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from collections import defaultdict
 
@@ -12,9 +13,12 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
 SOURCE_PATH = "/workspace/Baseline Data Use Case Alignment - Day 20.xlsx"
+DATA_ELEMENT_ORDER_PATH = "/workspace/Data Element Order.xlsx"
 OUTPUT_PATH = (
     "/workspace/Baseline Data Use Case Alignment - Day 20 - Reformatted.xlsx"
 )
+
+_section_field_order: dict[str, list[str]] = {}
 
 HEADER_FILL = PatternFill(start_color="1F4E79", end_color="1F4E79", fill_type="solid")
 HEADER_FONT = Font(bold=True, color="FFFFFF")
@@ -55,8 +59,8 @@ USE_CASE_HEADERS = [
 
 REVIEW_STATUS_COL = len(USE_CASE_HEADERS)
 
-# Logical field order within each section (related elements grouped together).
-SECTION_FIELD_ORDER: dict[str, list[str]] = {
+# Default field order for sections not defined in Data Element Order.xlsx.
+DEFAULT_SECTION_FIELD_ORDER: dict[str, list[str]] = {
     "1 - System Classification": [
         "Activity Type",
         "Use Case",
@@ -198,14 +202,55 @@ SECTION_FIELD_ORDER: dict[str, list[str]] = {
 }
 
 
+def load_section_field_order_from_spreadsheet(path: str) -> dict[str, list[str]]:
+    """Parse Data Element Order workbook (section headers in row 1, fields below)."""
+    if not os.path.isfile(path):
+        return {}
+
+    wb = openpyxl.load_workbook(path, data_only=True)
+    if "Data Element Order" in wb.sheetnames:
+        ws = wb["Data Element Order"]
+    else:
+        ws = wb.active
+
+    order: dict[str, list[str]] = {}
+    for col in range(1, ws.max_column + 1):
+        section = ws.cell(row=1, column=col).value
+        if not section or not str(section).strip():
+            continue
+        section_name = str(section).strip()
+        if section_name in order:
+            continue
+
+        fields: list[str] = []
+        for row in range(2, ws.max_row + 1):
+            value = ws.cell(row=row, column=col).value
+            if value is None or str(value).strip() == "":
+                continue
+            fields.append(str(value) if str(value).endswith(" ") else str(value).strip())
+
+        if fields:
+            order[section_name] = fields
+
+    wb.close()
+    return order
+
+
+def build_section_field_order() -> dict[str, list[str]]:
+    merged = dict(DEFAULT_SECTION_FIELD_ORDER)
+    merged.update(load_section_field_order_from_spreadsheet(DATA_ELEMENT_ORDER_PATH))
+    return merged
+
+
 def section_sort_key(section_name: str) -> int:
     match = re.match(r"(\d+)", str(section_name) or "")
     return int(match.group(1)) if match else 999
 
 
 def field_sort_key(section_name: str, field_name: str) -> tuple[int, int, str]:
-    order = SECTION_FIELD_ORDER.get(section_name, [])
-    normalized = {name: idx for idx, name in enumerate(order)}
+    order = _section_field_order or DEFAULT_SECTION_FIELD_ORDER
+    order_list = order.get(section_name, [])
+    normalized = {name: idx for idx, name in enumerate(order_list)}
     if field_name in normalized:
         return (0, normalized[field_name], field_name)
     return (1, 999, (field_name or "").lower().strip())
@@ -370,6 +415,7 @@ def write_readme_sheet(wb):
         "- Use Open Questions for cross-use-case follow-ups.",
         "",
         "Source file: Baseline Data Use Case Alignment - Day 20.xlsx",
+        "Field order: Data Element Order.xlsx (sections 2–6); defaults for sections 1, 7, 8.",
         "Regenerate with: python3 scripts/reformat_day20_workbook.py",
     ]
     for i, line in enumerate(lines, start=1):
@@ -536,6 +582,9 @@ def write_open_questions_sheet(wb, index, rows):
 
 
 def main():
+    global _section_field_order
+    _section_field_order = build_section_field_order()
+
     rows = load_source_rows()
     index = assign_sheet_names(build_use_case_index(rows))
 
