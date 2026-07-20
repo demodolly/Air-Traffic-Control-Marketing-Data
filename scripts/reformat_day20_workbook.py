@@ -17,10 +17,10 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
-SOURCE_PATH = "/workspace/Baseline Data Use Case Alignment - Day 20.xlsx"
+SOURCE_PATH = "/workspace/archive/baseline-workbooks/Baseline Data Use Case Alignment - Day 20.xlsx"
 DATA_ELEMENT_ORDER_PATH = "/workspace/Data Element Order.xlsx"
 OUTPUT_PATH = (
-    "/workspace/Baseline Data Use Case Alignment - Day 20 - Reformatted.xlsx"
+    "/workspace/archive/baseline-workbooks/Baseline Data Use Case Alignment - Day 20 - Reformatted.xlsx"
 )
 
 _section_field_order: dict[str, list[str]] = {}
