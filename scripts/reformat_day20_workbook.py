@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Reformat Day 20 baseline alignment into a use-case-centric workbook."""
+"""
+Reformat Day 20 baseline alignment into a use-case-centric workbook.
+
+DEPRECATED: Use `Baseline Data Use Case Alignment - Day 20 V2.xlsx` as the canonical file.
+Removed from repo: Day 20.xlsx and Day 20 - Reformatted.xlsx (recover from git history to rerun).
+"""
 
 from __future__ import annotations
 
