@@ -3,4 +3,4 @@ This repository will capture excel, word and powerpoint slides that capture the 
 ## Workbook formats
 
 - **Baseline Data Use Case Alignment - Day 20.xlsx** — original long-form baseline (one row per field per use case).
-- **Baseline Data Use Case Alignment - Day 20 - Reformatted.xlsx** — use-case-centric view with index, requirements, open questions, and process-level review sheets. Regenerate with `python3 scripts/reformat_day20_workbook.py`.
+- **Baseline Data Use Case Alignment - Day 20 - Reformatted.xlsx** — one sheet per use case (UC01–UC32), plus index and open-questions tabs. Regenerate with `python3 scripts/reformat_day20_workbook.py`.
