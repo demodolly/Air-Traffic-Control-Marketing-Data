@@ -25,6 +25,6 @@ Includes: Day 20 (original), Day 20 Reformatted, All Use Cases V1/V2, Offers V1/
 
 | Script | Status |
 |--------|--------|
-| `scripts/enhance_day20_v2_workbook.py` | Applies reviewer columns, navigation links, and README audit text to Day 20 V2 |
+| `scripts/reformat_day20_workbook.py` | **Deprecated** — edit **Day 20 V2** directly in Excel (do not run openpyxl scripts on V2; they break formulas) |
 | `scripts/add_section6_fields.py` | Legacy — reads archived All Use Cases V2 |
 | `scripts/create_section6_reference.py` | Legacy — reads archived All Use Cases V2 |
